@@ -1,0 +1,3107 @@
+{
+  "name": "Social media agent",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "document_chunks",
+        "limit": null,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "doc_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2860,
+        -100
+      ],
+      "id": "34504566-1846-43ea-b0d6-ab6c43dcf14b",
+      "name": "Supabase1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "3Rqwx5Z9APJ6JOvy",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      rag_context: items.map(i => i.json.chunk).join(\"\\n\\n\")\n    }\n  }\n]\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3080,
+        -100
+      ],
+      "id": "63e075bb-0df0-4cf8-a917-072c9bde45cf",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "documents",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "user_id",
+              "keyValue": "={{ $node[\"Supabase2\"].json.user_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        -100
+      ],
+      "id": "2a39c8a2-f7f5-40ff-b233-04c7bffa3b3e",
+      "name": "Supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "3Rqwx5Z9APJ6JOvy",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fd652d59-7e23-4c25-a72a-8b79954388a5",
+              "leftValue": "={{ $node[\"Supabase2\"].json.post_type }}",
+              "rightValue": "text+image",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4460,
+        -100
+      ],
+      "id": "671737df-96c5-4dea-9b88-43d9cb835cfa",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ebc88a2a-9857-4430-be33-a7383a69f309",
+              "leftValue": "={{ $node[\"Supabase2\"].json.post_type }}",
+              "rightValue": "text-only",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4840,
+        0
+      ],
+      "id": "a6c5dbe8-9b9c-4680-8e6a-4b6fb57bf7c0",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "eab0529c-3bfc-4aae-8a62-2fbcd1d8a970",
+              "leftValue": "={{ $node[\"Supabase2\"].json.post_type }}",
+              "rightValue": "image-first",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5260,
+        400
+      ],
+      "id": "d121dde6-5b60-45cb-92d8-a27adade80bb",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://genai-api.picsart.io/v1/text2image",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "x-picsart-api-key",
+              "value": "eyJraWQiOiI5NzIxYmUzNi1iMjcwLTQ5ZDUtOTc1Ni05ZDU5N2M4NmIwNTEiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhdXRoLXNlcnZpY2UtMjUxYmVlNTUtMzQ5MC00ZDAwLThmYWUtMmM2MjgyZmNkM2M4IiwiYXVkIjoiNDg5OTQyNjI3MDE3MTAxIiwibmJmIjoxNzUyMjQ2NjQ1LCJzY29wZSI6WyJiMmItYXBpLmdlbl9haSIsImIyYi1hcGkuaW1hZ2VfYXBpIl0sImlzcyI6Imh0dHBzOi8vYXBpLnBpY3NhcnQuY29tL3Rva2VuLXNlcnZpY2UiLCJvd25lcklkIjoiNDg5OTQyNjI3MDE3MTAxIiwiaWF0IjoxNzUyMjQ2NjQ1LCJqdGkiOiJkZjYwNzI4Mi0yNDYxLTQzMzUtYmUxYi04MWRmMWEzMDlmNmIifQ.fpkBEbbW6PfT1T_xkVIIfiOy0ODZMnJOziVV6kNyyHY_jTTFA30bRFGMkNmxs47Zxzjfr46jnchqIteU2NefOq1nuDcyvwg07fA8ROYNI_DwagstjoTHrajewJponEABT7FOthfAbfD_KLmKsed-jHWIKEVC94shXdAWSWgqvh-CjLzKsjl3sTxaIV2ITBs-5QITLyhchTL0TsKEHlRrn8tVwnQAu-fPVLxLjDvvKlfV1vHAKhL3BQevqT6qN0OMBopvB2xBQBVekDvU_uuU-KwJu9MVFBN3dLVlOZU9YwNPgW30ifDEgiuU6z5_-eKZgKeJjYNzwsNkZX6366LqpA"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"prompt\": {{ JSON.stringify($json.message.content + ($node[\"Supabase2\"].json.useRAG ? (' \\n\\nUse this context' + $node[\"Code\"].json[\"rag_context\"]) : '')) }},\n  \"height\": 1024,\n  \"width\": 1024,\n  \"count\": 1\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5980,
+        -1740
+      ],
+      "id": "8a90a233-b679-4567-967c-7458c15a7a57",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=you are a social media agent, create a caption for an image for platform {{ $node[\"Supabase2\"].json.platform }}, with tone {{ $node[\"Supabase2\"].json.tone }} and goal {{ $node[\"Supabase2\"].json.goal }}, the image prompt is this: , \n{{ $node[\"OpenAI13\"].json.message.content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        6940,
+        -1740
+      ],
+      "id": "930e90bc-44b6-4c40-9d7a-74f5a4e97643",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "wO54su9y3YotgdpN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.runware.ai/v1/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer vaQavF8Tprg4gyW6H2PSOZo3qRa0XKnC"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "=[{\n  \"taskType\": \"imageInference\",\n  \"taskUUID\": \"a770f077-f413-47de-9dac-be0b26a35da6\",\n  \"includeCost\": true,\n  \"model\": \"runware:97@3\",\n  \"outputType\": \"URL\",\n  \"outputFormat\": \"JPG\",\n  \"outputQuality\": 95,\n  \"numberResults\": 2,\n  \"checkNSFW\": true,\n  \"positivePrompt\": {{ JSON.stringify($node[\"Webhook\"].json.body.imagePrompt + ( $node[\"Webhook\"].json.body.useRAG ? (' ' + $json.rag_context) : '' ) + ' include this action in the image: ' + $node[\"Webhook\"].json.body.callToAction + ' with tone ' + $node[\"Webhook\"].json.body.tone + ' and goal for the post is to ' + $node[\"Webhook\"].json.body.goal + '. The image is for ' + $node[\"Webhook\"].json.body.platform + ' the topic for the image should be ' + $node[\"Webhook\"].json.body.contentInput) }},\n  \"height\": 1024,\n  \"width\": 1024,\n  \"guidance_scale\": 0.0,\n  \"num_inference_steps\": 16,\n  \"output_format\": \"webp\",\n  \"output_quality\": 100,\n  \"seed\": 2,\n  \"speed_mode\": \"Lightly Juiced\"\n}]",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5600,
+        380
+      ],
+      "id": "d76601e3-4179-4c3f-afd3-7476ec455501",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        580,
+        -80
+      ],
+      "id": "a4f8133d-d9ca-4976-a654-312d0cb5a21f",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "post_plans",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        800,
+        -80
+      ],
+      "id": "8c743ce5-c985-4089-9e48-c7991a81024a",
+      "name": "Supabase2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "3Rqwx5Z9APJ6JOvy",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "scheduled_posts",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "user_id",
+              "condition": "eq",
+              "keyValue": "={{ $node[\"Supabase2\"].json.user_id }}"
+            },
+            {
+              "keyName": "post_plan_id",
+              "condition": "eq",
+              "keyValue": "={{ $node[\"Supabase2\"].json.id }}"
+            },
+            {
+              "keyName": "post_day",
+              "condition": "eq",
+              "keyValue": "={{ $now.weekday }}"
+            },
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "uploaded"
+            },
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "pending"
+            },
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "cancelled"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1720,
+        -100
+      ],
+      "id": "a3589fd2-bd5a-4205-b221-c62495dd81ec",
+      "name": "Supabase3",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "3Rqwx5Z9APJ6JOvy",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date()\nconst day = now.getDay() || 7\nconst start = new Date(now)\nstart.setHours(0, 0, 0, 0)\nstart.setDate(start.getDate() - day + 1) // Monday\n\nconst end = new Date(start)\nend.setDate(start.getDate() + 7)\n\nreturn [\n  {\n    json: {\n      startOfWeek: start.toISOString(),\n      endOfWeek: end.toISOString()\n    }\n  }\n]\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1460,
+        -100
+      ],
+      "id": "82a57f61-654d-4738-b5fc-c6b06cbd51cb",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cf5d1007-288b-4917-a565-c9cb92a8c914",
+              "leftValue": "={{ $json.count_id }}",
+              "rightValue": "={{ 0 }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2220,
+        -100
+      ],
+      "id": "2257072f-bed7-46be-8247-8bea24a974f9",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Given the target audience \"{{ $node[\"Supabase2\"].json.target_audience }}\", what is the best time (in UTC, ISO 8601 format) to schedule a {{ $node[\"Supabase2\"].json.platform }} post for maximum engagement? Only return the time in JSON format: {\"scheduled_time\": \"15:00:00Z\"}\ndont include 'json' word in the response\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        7640,
+        -120
+      ],
+      "id": "0b1245bf-9339-4e27-bd78-f2fcc7982e53",
+      "name": "OpenAI2",
+      "credentials": {
+        "openAiApi": {
+          "id": "wO54su9y3YotgdpN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "scheduled_posts",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $node[\"Supabase2\"].json.user_id }}"
+            },
+            {
+              "fieldId": "platform",
+              "fieldValue": "={{ $node[\"Supabase2\"].json.platform }}"
+            },
+            {
+              "fieldId": "content",
+              "fieldValue": "={{ $node[\"Merge\"].json.message.content }}"
+            },
+            {
+              "fieldId": "scheduled_time",
+              "fieldValue": "={{ $json.scheduled_time }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "pending"
+            },
+            {
+              "fieldId": "post_plan_id",
+              "fieldValue": "={{ $node[\"Supabase2\"].json.id }}"
+            },
+            {
+              "fieldId": "post_day",
+              "fieldValue": "={{ $now.weekday.toString() }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        8340,
+        -120
+      ],
+      "id": "e318af78-b84c-46c4-937f-195b35fa7679",
+      "name": "Supabase4",
+      "credentials": {
+        "supabaseApi": {
+          "id": "3Rqwx5Z9APJ6JOvy",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "post_topics",
+        "returnAll": true,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "user_id",
+              "condition": "eq",
+              "keyValue": "={{ $node[\"Supabase2\"].json.user_id }}"
+            },
+            {
+              "keyName": "used",
+              "condition": "eq",
+              "keyValue": "={{ false }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3420,
+        -100
+      ],
+      "id": "be600d16-7bcc-4268-9b54-8ab3640bb2e1",
+      "name": "Supabase5",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "3Rqwx5Z9APJ6JOvy",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get today's date in UTC\nconst today = new Date();\n\n// Get post_time from Supabase (e.g., \"08:00:00\")\nconst postTime = $node[\"Supabase2\"].json[\"post_time\"];\n\n// Extract time components\nconst [hours, minutes, seconds] = postTime.split(':').map(Number);\n\n// Set time on today's date (still UTC)\ntoday.setUTCHours(hours, minutes, seconds, 0);\n\n// Convert to ISO string\nconst scheduledISO = today.toISOString();\n\nreturn [\n  {\n    json: {\n      scheduled_time: scheduledISO\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8060,
+        -120
+      ],
+      "id": "ef103008-243d-4a89-9cab-00472d094b51",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        1940,
+        -100
+      ],
+      "id": "7867a3b1-ce9f-4923-9b1b-58bb645ffd9c",
+      "name": "Summarize1"
+    },
+    {
+      "parameters": {
+        "url": "=https://serpapi.com/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google"
+            },
+            {
+              "name": "q",
+              "value": "=latest trends in {{ $node[\"Supabase2\"].json.business_type }}"
+            },
+            {
+              "name": "api_key",
+              "value": "00d7976384956a27104a73d3cb603a049e7f1dd3b03d23d0dd0f1cdbb26db545"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2960,
+        -400
+      ],
+      "id": "6eb44c89-4f52-41e4-96e0-500d99fe98db",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.ai_overview.serpapi_link }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3180,
+        -400
+      ],
+      "id": "bf2a2a94-e7fc-4c49-84d3-a75d3bba0171",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini-search-preview",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI-SEARCH-PREVIEW"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a social media agent.\n\nStep 1: Search for the **top 3 current trending topics** in the \"{{ $node[\"Supabase2\"].json.business_type }}\" industry as of this week by scanning recent web content.\n\nStep 2: Match the trends to today's weekday ({{ $now.weekday }}) based on standard engagement strategies used by social media agencies:\n\n- Monday → Motivation, industry vision, or thought leadership  \n- Tuesday → Tips, how-tos, educational content  \n- Wednesday → Behind the scenes, case studies, or client stories  \n- Thursday → Industry news, trends, or stats  \n- Friday → Light content, wins of the week, community shoutouts  \n\n(Saturday & Sunday are skipped unless specifically instructed)\n\nStep 3: Return a JSON object like this:\n{\n  \"day\": \"<current weekday>\",\n  \"post_type\": \"<one of the weekday-aligned content types>\",\n  \"topics\": [\"<top trend 1>\", \"<top trend 2>\", \"<top trend 3>\"]\n}\ndont include 'json' word in the response\nBegin now."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        5940,
+        -140
+      ],
+      "id": "f5324c1f-fb74-45c6-9a4e-a1a611a1459a",
+      "name": "OpenAI3",
+      "credentials": {
+        "openAiApi": {
+          "id": "wO54su9y3YotgdpN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "60912231-2c6c-4f1a-8bce-d755fa451b2a",
+              "leftValue": "={{ $node[\"Supabase5\"].json.isEmpty() }}",
+              "rightValue": "=true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5160,
+        -120
+      ],
+      "id": "eb5c216a-3ec5-4e50-a947-871f44e5a352",
+      "name": "If4"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        7340,
+        -120
+      ],
+      "id": "2deb6cf8-eff0-4749-9f4a-90a539da9f9e",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        520,
+        1300
+      ],
+      "id": "e4a74a44-4164-416a-a5e1-bf83b7369f57",
+      "name": "Schedule Trigger1"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "scheduled_posts",
+        "returnAll": true,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "scheduled_time",
+              "condition": "lte",
+              "keyValue": "={{ $now.plus(10000, day).toISO() }}"
+            },
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "pending"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        740,
+        1300
+      ],
+      "id": "b8c817e0-1a06-4213-89da-aa832e8c5197",
+      "name": "Supabase6",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "3Rqwx5Z9APJ6JOvy",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4eeffd2d-8b50-4ba6-91fc-cc23357ba6c8",
+              "leftValue": "={{ $json.isEmpty().toString() }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        1300
+      ],
+      "id": "208847a6-3d96-4240-b7e2-9abee8627e55",
+      "name": "If5"
+    },
+    {
+      "parameters": {
+        "person": "0TL-s-xlav",
+        "text": "={{ $json.content }}",
+        "shareMediaCategory": "IMAGE",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        1520
+      ],
+      "id": "aef98a5a-b60b-4363-8c95-c7386130d63f",
+      "name": "LinkedIn",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "vQgHpSKygd7uOyKD",
+          "name": "LinkedIn account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "post_topics",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $node[\"OpenAI6\"].json.message.content.parseJson().topic_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "used",
+              "fieldValue": "={{ true }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        7780,
+        540
+      ],
+      "id": "3b77c069-a34f-45a4-af24-a9e045236eba",
+      "name": "Supabase7",
+      "credentials": {
+        "supabaseApi": {
+          "id": "3Rqwx5Z9APJ6JOvy",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "scheduled_posts",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $node[\"Supabase6\"].json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "uploaded"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1900,
+        1520
+      ],
+      "id": "73ebb565-ebb8-4a3b-8c98-7c062c3053d1",
+      "name": "Supabase8",
+      "credentials": {
+        "supabaseApi": {
+          "id": "3Rqwx5Z9APJ6JOvy",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6e1c2bbd-97db-48d5-8bc0-533cc7e507e4",
+              "leftValue": "={{ $json.doc_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5700,
+        100
+      ],
+      "id": "e06de409-0479-409f-9212-db935107f609",
+      "name": "If6"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "post_topic_docs",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "keyValue": "={{ $json.doc_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        6040,
+        80
+      ],
+      "id": "28ab6652-73f8-4eb2-a1e1-68d25f659f2a",
+      "name": "Supabase9",
+      "credentials": {
+        "supabaseApi": {
+          "id": "3Rqwx5Z9APJ6JOvy",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.file_url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6260,
+        80
+      ],
+      "id": "eb4c7ed0-bb9b-4713-ab5f-6b9a52650dc1",
+      "name": "HTTP Request4",
+      "credentials": {
+        "supabaseApi": {
+          "id": "3Rqwx5Z9APJ6JOvy",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        6340,
+        360
+      ],
+      "id": "35ae8650-b73e-414b-985f-cc4388bd052e",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const postPlan = items[0].json;\n\n// Get current date\nconst today = new Date();\n\n// Get today's day number in 1–7 format (Monday = 1, Sunday = 7)\nconst dayNumber = today.getDay() === 0 ? 7 : today.getDay();  // JS: Sunday = 0\n\n// Check if today's number (as string) exists in post_days array\nconst isScheduled = postPlan.post_days.includes(dayNumber.toString());\n\n// Output result\nreturn [{\n  json: {\n    ...postPlan,\n    isScheduledToday: isScheduled,\n    todayDayNumber: dayNumber\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1020,
+        -80
+      ],
+      "id": "f7b107a2-7340-4c69-b2a5-4b8c596c5e96",
+      "name": "Code3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9904134d-33ab-46c9-a001-47e3306561dc",
+              "leftValue": "={{ $json.isScheduledToday }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1240,
+        -80
+      ],
+      "id": "25ef3660-bcf9-44b4-96ef-46680634bb06",
+      "name": "If7"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a social media agent\nCreate a high-quality social media post using the following inputs:\n\nInputs:\nCurrent Weekday: {{ $now.weekday }}\nTrends: {{ $json.message.content }}\n\nPlatform: {{ $node[\"Supabase2\"].json[\"platform\"] }}\nTone: {{ $node[\"Supabase2\"].json[\"tone\"] }}\nGoal: {{ $node[\"Supabase2\"].json[\"goal\"] }}\nTarget Audience: {{ $node[\"Supabase2\"].json[\"target_audience\"] }}\nBusiness Context: {{ $node[\"Code\"].json[\"rag_context\"] }}\n\nUse weekday-specific social media styles to make the post more engaging and relevant:\n\n- Monday (1) → Motivation, vision, thought leadership  \n- Tuesday (2) → Tips, how-tos, educational content  \n- Wednesday (3) → Behind the scenes, case studies, client stories  \n- Thursday (4) → Industry news, trends, stats  \n- Friday (5) → Community wins, team shoutouts, lighter tone\n\nThe post should be:\n- Engaging and appropriate for {{ $node[\"Supabase2\"].json[\"platform\"] }}\n- Aligned with today’s post type\n- Relevant to the provided trends and target audience\n- Concise, impactful, and free of date references\n- Avoid hashtags and emojis unless native to the platform\n\nOutput only the final post text.\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        6580,
+        -140
+      ],
+      "id": "2d2ba75d-c36d-40bb-b26f-e70e6c4da718",
+      "name": "OpenAI4",
+      "credentials": {
+        "openAiApi": {
+          "id": "wO54su9y3YotgdpN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a senior in a social media agency\n{{`\n# Inputs\nBusiness Type: ${$node[\"Supabase2\"].json.business_type}\nPlatform: ${$node[\"Supabase2\"].json.platform}\nTone: ${$node[\"Supabase2\"].json.tone}\nGoal: ${$node[\"Supabase2\"].json.goal}\nTopic: \"${$node[\"Supabase5\"].json.topic}\"\nTopic Details: ${ $json.data ? `\\n${$json.data}` : '—none provided—' }\nContext: ${$node[\"Code\"].json.rag_context}\nTarget Audience: ${$node[\"Supabase2\"].json.target_audience}\n\n# Current Context\nWeekday: ${$now.weekday}\n\n---\n\n## Social‑Agency Logic:\n1. **Check if today’s weekday suits this topic** based on agency guidelines:\n   - **Mon**: Motivation / leadership\n   - **Tue**: Tips / how‑tos\n   - **Wed**: BTS / case studies\n   - **Thu**: News / data / trends\n   - **Fri**: Light / community\n2. **If topic fits** today’s slot → craft a social‑ready post accordingly.\n3. **If it doesn’t fit**:\n   - Perform a web search: \"current trends in [business_type]\"  \n   - Choose the most relevant up‑to‑date topic aligned with today’s weekday style.\n   - Then build the post around that new topic.\n\n---\n\n## Content Requirements:\n- Platform‑appropriate format and style\n- Matches the given tone, goal, audience, and business context\n- Aligned with weekday-specific post type\n- No dates, minimal hashtags or emojis (only if native)\n- Concise, clear, and engaging\n\n---\n\n## Output:\nOnly return the final post text. Do **not** include your reasoning or the weekday check process.\n`}}\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        5180,
+        1000
+      ],
+      "id": "7a16ebfe-94bc-4e3b-ac79-8d125360787b",
+      "name": "OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "wO54su9y3YotgdpN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a social media agent.\nTell me whehter it is feasible to create a {{ $node[\"Supabase2\"].json.platform }} post for weekday ({{ $now.weekday }}) according to {{ $node[\"Supabase2\"].json.target_audience }} as target audience on this topic \"{{ $node[\"Supabase5\"].json.topic }}\" or any other topic?\n\n{{ $node[\"Supabase10\"].json.doc_id ? `Topic details: \\n${$json.data}` : '' }}\n\nContext: {{$node[\"Code\"].json.rag_context}}\n\n- Monday (1) → Motivation, industry vision, or thought leadership  \n- Tuesday (2) → Tips, how-tos, educational content  \n- Wednesday (3) → Behind the scenes, case studies, or client stories  \n- Thursday (4) → Industry news, trends, or stats  \n- Friday (5) → Light content, wins of the week, community shoutouts  \n\n(Saturday & Sunday are skipped unless specifically instructed)\n\nAnd if it is more feasible to create a post on the topic then identify whether the topic says anything about to post later like e.g, topic says we hired two developers and they will start working from next month or we are working on a project and it will complete next week then you should return the scheduled_time for that post for next week or month accordingly and feasible now should be false in this case. The scheduled_time should be such that it should be on ({{ $node[\"Supabase2\"].json.post_days }}) days of the week only as these are predefined for the user based on preferences.\n\nAnd if it is ok to create a post on the topic then create a post on the topic {{ $node[\"Supabase5\"].json.topic }}, with tone ({{ $node[\"Supabase2\"].json.tone }}) and goal ({{ $node[\"Supabase2\"].json.goal }}) for target audience ({{ $node[\"Supabase2\"].json.target_audience }})\n\nCurrent date is: {{ $now }}\n\nReturn as JSON only:\n{\n  \"feasible_now\": <true|false>,\n  \"reason\": \"<string>\",\n  \"scheduled_time\": \"<ISO8601 timestamp or null>\",\n  \"post_text\": \"<string or null>\"\n}\n\ndont include 'json' word in the response"
+            },
+            {
+              "content": "=If the topic indicates that the action will be done in later time, then you should act accordingly.\nAlso the time in scheduled_time it should be fixed according to the most feasible time for the timezone and target audience \"{{ $node[\"Supabase2\"].json.target_audience }}\"",
+              "role": "system"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        6880,
+        640
+      ],
+      "id": "313c94f8-9d62-47f7-8e79-8fb44b698499",
+      "name": "OpenAI5",
+      "credentials": {
+        "openAiApi": {
+          "id": "wO54su9y3YotgdpN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=you are a social media agent, identify from the topics which topic should be used now to create a post on it now...as social media agents do identify the week trends or check if the topic says something which can be posted later next week, month or later\nWeekday: {{ $now.weekday }}\nDate: {{ $now }}\nTopics: {{ $json.data.toJsonString() }}\n\nReturn JSON only:\n{\n  \"topic_id\": <topic id on which post should be created now, it should be from the topic object>\n}\n\ndont write 'json' word in the response"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        4020,
+        -100
+      ],
+      "id": "b24a41f9-6c45-44ff-9be9-74418d7ead52",
+      "name": "OpenAI6",
+      "executeOnce": true,
+      "credentials": {
+        "openAiApi": {
+          "id": "wO54su9y3YotgdpN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "include": "specifiedFields",
+        "fieldsToInclude": "topic, id",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        3700,
+        -100
+      ],
+      "id": "2ae1e38a-3f8a-4442-b818-79faa1d0897c",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "post_topics",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "keyValue": "={{ $json.message.content.parseJson().topic_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        5460,
+        100
+      ],
+      "id": "1a745887-47bb-4dd8-a9e7-61a0bc2f8f0d",
+      "name": "Supabase10",
+      "credentials": {
+        "supabaseApi": {
+          "id": "3Rqwx5Z9APJ6JOvy",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "346daa57-1dbf-4d35-8765-93050b368d2a",
+              "leftValue": "={{ $json.message.content.parseJson().feasible_now }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        7360,
+        640
+      ],
+      "id": "1c9ca491-89bd-45bd-8a95-08a5ed56052b",
+      "name": "If8"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a73628e3-4f08-4e7a-8285-7d8a2a5fa023",
+              "leftValue": "={{ $node[\"OpenAI5\"].json.message.content.parseJson().feasible_now }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "e02d512b-fd41-4aa2-9498-28161cbb5e80",
+              "leftValue": "={{ $node[\"OpenAI5\"].json.message.content.parseJson().scheduled_time }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        7800,
+        900
+      ],
+      "id": "ee5bbdd8-cc4b-4a22-ac3b-9ab38df8b312",
+      "name": "If9"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a social media agent optimize this post for the topic: {{ $node[\"Supabase5\"].json.topic }}\n\n{{ $node[\"Supabase10\"].json.doc_id ? `Topic details: \\n${$json.data}` : '' }}\n\nPost:\n{{ $json.message.content.parseJson().post_text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        7760,
+        300
+      ],
+      "id": "78658ceb-645a-44cd-9659-7a2346937b7a",
+      "name": "OpenAI7",
+      "credentials": {
+        "openAiApi": {
+          "id": "wO54su9y3YotgdpN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Create a post for the topic {{ $node[\"Supabase5\"].json.topic }}\n{{ $node[\"Supabase10\"].json.doc_id ? `Topic details: \\n${$json.data}` : '' }}\n\nBusiness Context: {{ $node[\"Code\"].json[\"rag_context\"] }}\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        8680,
+        460
+      ],
+      "id": "b75dd90a-9aaa-4654-bb67-d8c038068f37",
+      "name": "OpenAI8",
+      "credentials": {
+        "openAiApi": {
+          "id": "wO54su9y3YotgdpN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "scheduled_posts",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $node[\"Supabase\"].json.user_id }}"
+            },
+            {
+              "fieldId": "platform",
+              "fieldValue": "={{ $node[\"Supabase2\"].json.platform }}"
+            },
+            {
+              "fieldId": "content",
+              "fieldValue": "={{ $json.message.content }}"
+            },
+            {
+              "fieldId": "scheduled_time",
+              "fieldValue": "={{ $node[\"OpenAI5\"].json.message.content.parseJson().scheduled_time }}"
+            },
+            {
+              "fieldId": "post_plan_id",
+              "fieldValue": "={{ $node[\"Supabase2\"].json.id }}"
+            },
+            {
+              "fieldId": "post_day",
+              "fieldValue": "={{ $now.weekday.toString() }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        9040,
+        460
+      ],
+      "id": "4f4d1f75-acbf-4b50-9292-4c94cc239142",
+      "name": "Supabase11",
+      "credentials": {
+        "supabaseApi": {
+          "id": "3Rqwx5Z9APJ6JOvy",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "60912231-2c6c-4f1a-8bce-d755fa451b2a",
+              "leftValue": "={{ $node[\"Supabase5\"].json.isEmpty() }}",
+              "rightValue": "=true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4860,
+        -940
+      ],
+      "id": "a58a0673-2ae1-48c2-aedd-062d5bcc8788",
+      "name": "If10"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6e1c2bbd-97db-48d5-8bc0-533cc7e507e4",
+              "leftValue": "={{ $json.doc_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5400,
+        -920
+      ],
+      "id": "1b7a13de-c54a-4b64-aeee-7e48e6873979",
+      "name": "If11"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "post_topic_docs",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "keyValue": "={{ $json.doc_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        5740,
+        -940
+      ],
+      "id": "300a3364-5fb7-4ec4-8db8-f7ebe4d88727",
+      "name": "Supabase12",
+      "credentials": {
+        "supabaseApi": {
+          "id": "3Rqwx5Z9APJ6JOvy",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.file_url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5960,
+        -940
+      ],
+      "id": "33db82b5-79cc-4da7-958a-1c62605cf492",
+      "name": "HTTP Request5",
+      "credentials": {
+        "supabaseApi": {
+          "id": "3Rqwx5Z9APJ6JOvy",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "post_topics",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "keyValue": "={{ $json.message.content.parseJson().topic_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        5160,
+        -920
+      ],
+      "id": "c01da17f-e6de-497d-8aea-e513d2de215f",
+      "name": "Supabase13",
+      "credentials": {
+        "supabaseApi": {
+          "id": "3Rqwx5Z9APJ6JOvy",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "post_topics",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $node[\"OpenAI6\"].json.message.content.parseJson().topic_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "used",
+              "fieldValue": "={{ true }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        7840,
+        -940
+      ],
+      "id": "582cc626-d919-46c9-a4e9-84b967823f60",
+      "name": "Supabase14",
+      "credentials": {
+        "supabaseApi": {
+          "id": "3Rqwx5Z9APJ6JOvy",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        6400,
+        -640
+      ],
+      "id": "25112335-8daa-48a1-9d83-3fe3969ae37c",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a social media agent.\nTell me whehter it is feasible to create a {{ $node[\"Supabase2\"].json.platform }} post for weekday ({{ $now.weekday }}) according to {{ $node[\"Supabase2\"].json.target_audience }} as target audience on this topic \"{{ $node[\"Supabase5\"].json.topic }}\" or any other topic?\n\n{{ $node[\"Supabase13\"].json.doc_id ? 'Topic details: \\n${$json.data}' : '' }}\n\nContext: {{$node[\"Code\"].json.rag_context}}\n\n- Monday (1) → Motivation, industry vision, or thought leadership  \n- Tuesday (2) → Tips, how-tos, educational content  \n- Wednesday (3) → Behind the scenes, case studies, or client stories  \n- Thursday (4) → Industry news, trends, or stats  \n- Friday (5) → Light content, wins of the week, community shoutouts  \n\n(Saturday & Sunday are skipped unless specifically instructed)\n\nAnd if it is more feasible to create a post on the topic then identify whether the topic says anything about to post later like e.g, topic says we hired two developers and they will start working from next month or we are working on a project and it will complete next week then you should return the scheduled_time for that post for next week or month accordingly and feasible now should be false in this case. The scheduled_time should be such that it should be on ({{ $node[\"Supabase2\"].json.post_days }}) days of the week only as these are predefined for the user based on preferences.\n\nAnd if it is ok to create a post on the topic then create a post on the topic {{ $node[\"Supabase5\"].json.topic }}, with tone ({{ $node[\"Supabase2\"].json.tone }}) and goal ({{ $node[\"Supabase2\"].json.goal }}) for target audience ({{ $node[\"Supabase2\"].json.target_audience }})\n\nCurrent date is: {{ $now }}\n\nReturn as JSON only:\n{\n  \"feasible_now\": <true|false>,\n  \"reason\": \"<string>\",\n  \"scheduled_time\": \"<ISO8601 timestamp or null>\",\n  \"post_text\": \"<string or null>\"\n}\n\ndont include 'json' word in the response"
+            },
+            {
+              "content": "=If the topic indicates that the action will be done in later time, then you should act accordingly.\nAlso the time in scheduled_time it should be fixed according to the most feasible time for the timezone and target audience \"{{ $node[\"Supabase2\"].json.target_audience }}\"",
+              "role": "system"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        6940,
+        -920
+      ],
+      "id": "414e0828-1c9a-4b70-afcc-45acf3a6850e",
+      "name": "OpenAI9",
+      "credentials": {
+        "openAiApi": {
+          "id": "wO54su9y3YotgdpN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "346daa57-1dbf-4d35-8765-93050b368d2a",
+              "leftValue": "={{ $json.message.content.parseJson().feasible_now }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        7420,
+        -920
+      ],
+      "id": "74d6526a-143f-4d73-81fc-ddddbd6c5c67",
+      "name": "If12"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a73628e3-4f08-4e7a-8285-7d8a2a5fa023",
+              "leftValue": "={{ $node[\"OpenAI9\"].json.message.content.parseJson().feasible_now }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "e02d512b-fd41-4aa2-9498-28161cbb5e80",
+              "leftValue": "={{ $node[\"OpenAI9\"].json.message.content.parseJson().scheduled_time }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        7860,
+        -660
+      ],
+      "id": "55de094e-5272-4849-843b-bc6fbca730ec",
+      "name": "If13"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a social media agent optimize this post for the topic: {{ $node[\"Supabase5\"].json.topic }}\n\n{{ $node[\"Supabase10\"].json.doc_id ? `Topic details: \\n${$json.data}` : '' }}\n\nPost:\n{{ $json.message.content.parseJson().post_text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        8360,
+        -1400
+      ],
+      "id": "7f1e4301-387c-4c87-ba8e-b731cf56a4ea",
+      "name": "OpenAI10",
+      "credentials": {
+        "openAiApi": {
+          "id": "wO54su9y3YotgdpN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Create a post for the topic {{ $node[\"Supabase5\"].json.topic }}\n{{ $node[\"Supabase13\"].json.doc_id ? `Topic details: \\n${$json.data}` : '' }}\n\nBusiness Context: {{ $node[\"Code\"].json[\"rag_context\"] }}\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        8900,
+        -680
+      ],
+      "id": "5c86178a-7da8-4547-9f2a-83fde8cc1789",
+      "name": "OpenAI11",
+      "credentials": {
+        "openAiApi": {
+          "id": "wO54su9y3YotgdpN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "scheduled_posts",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $node[\"Supabase\"].json.user_id }}"
+            },
+            {
+              "fieldId": "platform",
+              "fieldValue": "={{ $node[\"Supabase2\"].json.platform }}"
+            },
+            {
+              "fieldId": "content",
+              "fieldValue": "={{ $json.message.content }}"
+            },
+            {
+              "fieldId": "scheduled_time",
+              "fieldValue": "={{ $node[\"OpenAI9\"].json.message.content.parseJson().scheduled_time }}"
+            },
+            {
+              "fieldId": "post_plan_id",
+              "fieldValue": "={{ $node[\"Supabase2\"].json.id }}"
+            },
+            {
+              "fieldId": "post_day",
+              "fieldValue": "={{ $now.weekday.toString() }}"
+            },
+            {
+              "fieldId": "image_url",
+              "fieldValue": "={{ $node[\"HTTP Request11\"].json.data[0].url }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        9380,
+        -680
+      ],
+      "id": "b85d8bce-c118-420a-bd0d-0dec66c2ce50",
+      "name": "Supabase15",
+      "credentials": {
+        "supabaseApi": {
+          "id": "3Rqwx5Z9APJ6JOvy",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Given the target audience \"{{ $node[\"Supabase2\"].json.target_audience }}\", what is the best time (in UTC, ISO 8601 format) to schedule a {{ $node[\"Supabase2\"].json.platform }} post for maximum engagement? Only return the time in JSON format: {\"scheduled_time\": \"15:00:00Z\"}\ndont include 'json' word in the response\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        7680,
+        -1720
+      ],
+      "id": "8d5902d3-548b-44b1-903a-9f0c6f324282",
+      "name": "OpenAI12",
+      "credentials": {
+        "openAiApi": {
+          "id": "wO54su9y3YotgdpN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "scheduled_posts",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $node[\"Supabase2\"].json.user_id }}"
+            },
+            {
+              "fieldId": "platform",
+              "fieldValue": "={{ $node[\"Supabase2\"].json.platform }}"
+            },
+            {
+              "fieldId": "content",
+              "fieldValue": "={{ $node[\"Merge3\"].json.message.content }}"
+            },
+            {
+              "fieldId": "scheduled_time",
+              "fieldValue": "={{ $json.scheduled_time }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "pending"
+            },
+            {
+              "fieldId": "post_plan_id",
+              "fieldValue": "={{ $node[\"Supabase2\"].json.id }}"
+            },
+            {
+              "fieldId": "post_day",
+              "fieldValue": "={{ $now.weekday.toString() }}"
+            },
+            {
+              "fieldId": "image_url",
+              "fieldValue": "={{ $node[\"HTTP Request6\"].json.data[0].url }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        8380,
+        -1720
+      ],
+      "id": "73cb2c39-007c-4bef-a7b0-1ba09509ae21",
+      "name": "Supabase16",
+      "credentials": {
+        "supabaseApi": {
+          "id": "3Rqwx5Z9APJ6JOvy",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get today's date in UTC\nconst today = new Date();\n\n// Get post_time from Supabase (e.g., \"08:00:00\")\nconst postTime = $node[\"Supabase2\"].json[\"post_time\"];\n\n// Extract time components\nconst [hours, minutes, seconds] = postTime.split(':').map(Number);\n\n// Set time on today's date (still UTC)\ntoday.setUTCHours(hours, minutes, seconds, 0);\n\n// Convert to ISO string\nconst scheduledISO = today.toISOString();\n\nreturn [\n  {\n    json: {\n      scheduled_time: scheduledISO\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8100,
+        -1720
+      ],
+      "id": "41bb0abc-c6c6-4823-92a0-6c4686469d2f",
+      "name": "Code4"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        7380,
+        -1720
+      ],
+      "id": "e894a62e-ab25-47eb-87a6-114bcad8fc60",
+      "name": "Merge3"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini-search-preview",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI-SEARCH-PREVIEW"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a social media agent.\n\nStep 1: Search for the top 3 current trending topics in the \"{{ $node[\"Supabase2\"].json.business_type }}\" industry as of this week by scanning recent web content.\n\nStep 2: Match the trends to today's weekday ({{ $now.weekday }}) using this guide:\n\nMonday → Motivation, industry vision, or thought leadership\n\nTuesday → Tips, how-tos, educational content\n\nWednesday → Behind the scenes, case studies, or client stories\n\nThursday → Industry news, trends, or stats\n\nFriday → Light content, wins of the week, community shoutouts\n\nStep 3: Return a detailed visual scene description suitable for an image generation model. Do not include explanations, headings, or JSON. Just output a natural language image prompt based on the business type, matched post type, and trending topics.\n\nThe description should:\n\nReflect the post type and weekday\n\nVisually represent all 3 trending topics\n\nBe formatted like an image prompt (clear, visual, short sentences)\n\ntone ({{ $node[\"Supabase2\"].json.tone }}) for a {{ $node[\"Supabase2\"].json.platform }} with goal ({{ $node[\"Supabase2\"].json.goal }})"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        5600,
+        -1740
+      ],
+      "id": "a5ed22df-868d-463b-b39c-b027a2f603a4",
+      "name": "OpenAI13",
+      "credentials": {
+        "openAiApi": {
+          "id": "wO54su9y3YotgdpN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        6200,
+        -1740
+      ],
+      "id": "a4a21e7b-8195-4b7d-8edf-7e69b0a8a043",
+      "name": "Wait",
+      "webhookId": "f0dd6717-d726-49c1-8e8a-33cf3a07d1ae"
+    },
+    {
+      "parameters": {
+        "url": "=https://genai-api.picsart.io/v1/text2image/inferences/{{ $json.inference_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-picsart-api-key",
+              "value": "eyJraWQiOiI5NzIxYmUzNi1iMjcwLTQ5ZDUtOTc1Ni05ZDU5N2M4NmIwNTEiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhdXRoLXNlcnZpY2UtMjUxYmVlNTUtMzQ5MC00ZDAwLThmYWUtMmM2MjgyZmNkM2M4IiwiYXVkIjoiNDg5OTQyNjI3MDE3MTAxIiwibmJmIjoxNzUyMjQ2NjQ1LCJzY29wZSI6WyJiMmItYXBpLmdlbl9haSIsImIyYi1hcGkuaW1hZ2VfYXBpIl0sImlzcyI6Imh0dHBzOi8vYXBpLnBpY3NhcnQuY29tL3Rva2VuLXNlcnZpY2UiLCJvd25lcklkIjoiNDg5OTQyNjI3MDE3MTAxIiwiaWF0IjoxNzUyMjQ2NjQ1LCJqdGkiOiJkZjYwNzI4Mi0yNDYxLTQzMzUtYmUxYi04MWRmMWEzMDlmNmIifQ.fpkBEbbW6PfT1T_xkVIIfiOy0ODZMnJOziVV6kNyyHY_jTTFA30bRFGMkNmxs47Zxzjfr46jnchqIteU2NefOq1nuDcyvwg07fA8ROYNI_DwagstjoTHrajewJponEABT7FOthfAbfD_KLmKsed-jHWIKEVC94shXdAWSWgqvh-CjLzKsjl3sTxaIV2ITBs-5QITLyhchTL0TsKEHlRrn8tVwnQAu-fPVLxLjDvvKlfV1vHAKhL3BQevqT6qN0OMBopvB2xBQBVekDvU_uuU-KwJu9MVFBN3dLVlOZU9YwNPgW30ifDEgiuU6z5_-eKZgKeJjYNzwsNkZX6366LqpA"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6420,
+        -1740
+      ],
+      "id": "004e805e-4e27-43e4-8806-80892c3e6bfd",
+      "name": "HTTP Request6"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.image_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1440,
+        1520
+      ],
+      "id": "978d4383-afcf-435d-8682-499d2c7db48c",
+      "name": "HTTP Request8"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://genai-api.picsart.io/v1/text2image",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "x-picsart-api-key",
+              "value": "eyJraWQiOiI5NzIxYmUzNi1iMjcwLTQ5ZDUtOTc1Ni05ZDU5N2M4NmIwNTEiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhdXRoLXNlcnZpY2UtMjUxYmVlNTUtMzQ5MC00ZDAwLThmYWUtMmM2MjgyZmNkM2M4IiwiYXVkIjoiNDg5OTQyNjI3MDE3MTAxIiwibmJmIjoxNzUyMjQ2NjQ1LCJzY29wZSI6WyJiMmItYXBpLmdlbl9haSIsImIyYi1hcGkuaW1hZ2VfYXBpIl0sImlzcyI6Imh0dHBzOi8vYXBpLnBpY3NhcnQuY29tL3Rva2VuLXNlcnZpY2UiLCJvd25lcklkIjoiNDg5OTQyNjI3MDE3MTAxIiwiaWF0IjoxNzUyMjQ2NjQ1LCJqdGkiOiJkZjYwNzI4Mi0yNDYxLTQzMzUtYmUxYi04MWRmMWEzMDlmNmIifQ.fpkBEbbW6PfT1T_xkVIIfiOy0ODZMnJOziVV6kNyyHY_jTTFA30bRFGMkNmxs47Zxzjfr46jnchqIteU2NefOq1nuDcyvwg07fA8ROYNI_DwagstjoTHrajewJponEABT7FOthfAbfD_KLmKsed-jHWIKEVC94shXdAWSWgqvh-CjLzKsjl3sTxaIV2ITBs-5QITLyhchTL0TsKEHlRrn8tVwnQAu-fPVLxLjDvvKlfV1vHAKhL3BQevqT6qN0OMBopvB2xBQBVekDvU_uuU-KwJu9MVFBN3dLVlOZU9YwNPgW30ifDEgiuU6z5_-eKZgKeJjYNzwsNkZX6366LqpA"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"prompt\": {{ JSON.stringify('Generate an image for ' + $node[\"Supabase2\"].json.platform + ', with tone (' + $node[\"Supabase2\"].json.tone + ') and goal (' + $node[\"Supabase2\"].json.goal + ') for the topic, (' + $node[\"Supabase5\"].json.topic + ')' + ($node[\"Supabase2\"].json.useRAG ? (' \\n\\nUse this context' + $node[\"Code\"].json[\"rag_context\"]) : '')) }},\n  \"height\": 1024,\n  \"width\": 1024,\n  \"count\": 1\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        7740,
+        -1160
+      ],
+      "id": "3add0161-f765-4824-9283-928d4db865af",
+      "name": "HTTP Request7"
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        7960,
+        -1160
+      ],
+      "id": "31668a70-7664-460f-b5bf-ea9f6cf6a88b",
+      "name": "Wait1",
+      "webhookId": "f0dd6717-d726-49c1-8e8a-33cf3a07d1ae"
+    },
+    {
+      "parameters": {
+        "url": "=https://genai-api.picsart.io/v1/text2image/inferences/{{ $json.inference_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-picsart-api-key",
+              "value": "eyJraWQiOiI5NzIxYmUzNi1iMjcwLTQ5ZDUtOTc1Ni05ZDU5N2M4NmIwNTEiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhdXRoLXNlcnZpY2UtMjUxYmVlNTUtMzQ5MC00ZDAwLThmYWUtMmM2MjgyZmNkM2M4IiwiYXVkIjoiNDg5OTQyNjI3MDE3MTAxIiwibmJmIjoxNzUyMjQ2NjQ1LCJzY29wZSI6WyJiMmItYXBpLmdlbl9haSIsImIyYi1hcGkuaW1hZ2VfYXBpIl0sImlzcyI6Imh0dHBzOi8vYXBpLnBpY3NhcnQuY29tL3Rva2VuLXNlcnZpY2UiLCJvd25lcklkIjoiNDg5OTQyNjI3MDE3MTAxIiwiaWF0IjoxNzUyMjQ2NjQ1LCJqdGkiOiJkZjYwNzI4Mi0yNDYxLTQzMzUtYmUxYi04MWRmMWEzMDlmNmIifQ.fpkBEbbW6PfT1T_xkVIIfiOy0ODZMnJOziVV6kNyyHY_jTTFA30bRFGMkNmxs47Zxzjfr46jnchqIteU2NefOq1nuDcyvwg07fA8ROYNI_DwagstjoTHrajewJponEABT7FOthfAbfD_KLmKsed-jHWIKEVC94shXdAWSWgqvh-CjLzKsjl3sTxaIV2ITBs-5QITLyhchTL0TsKEHlRrn8tVwnQAu-fPVLxLjDvvKlfV1vHAKhL3BQevqT6qN0OMBopvB2xBQBVekDvU_uuU-KwJu9MVFBN3dLVlOZU9YwNPgW30ifDEgiuU6z5_-eKZgKeJjYNzwsNkZX6366LqpA"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        8180,
+        -1160
+      ],
+      "id": "b5efc96c-4f93-498f-a257-e5cde37254b8",
+      "name": "HTTP Request9"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://genai-api.picsart.io/v1/text2image",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "x-picsart-api-key",
+              "value": "eyJraWQiOiI5NzIxYmUzNi1iMjcwLTQ5ZDUtOTc1Ni05ZDU5N2M4NmIwNTEiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhdXRoLXNlcnZpY2UtMjUxYmVlNTUtMzQ5MC00ZDAwLThmYWUtMmM2MjgyZmNkM2M4IiwiYXVkIjoiNDg5OTQyNjI3MDE3MTAxIiwibmJmIjoxNzUyMjQ2NjQ1LCJzY29wZSI6WyJiMmItYXBpLmdlbl9haSIsImIyYi1hcGkuaW1hZ2VfYXBpIl0sImlzcyI6Imh0dHBzOi8vYXBpLnBpY3NhcnQuY29tL3Rva2VuLXNlcnZpY2UiLCJvd25lcklkIjoiNDg5OTQyNjI3MDE3MTAxIiwiaWF0IjoxNzUyMjQ2NjQ1LCJqdGkiOiJkZjYwNzI4Mi0yNDYxLTQzMzUtYmUxYi04MWRmMWEzMDlmNmIifQ.fpkBEbbW6PfT1T_xkVIIfiOy0ODZMnJOziVV6kNyyHY_jTTFA30bRFGMkNmxs47Zxzjfr46jnchqIteU2NefOq1nuDcyvwg07fA8ROYNI_DwagstjoTHrajewJponEABT7FOthfAbfD_KLmKsed-jHWIKEVC94shXdAWSWgqvh-CjLzKsjl3sTxaIV2ITBs-5QITLyhchTL0TsKEHlRrn8tVwnQAu-fPVLxLjDvvKlfV1vHAKhL3BQevqT6qN0OMBopvB2xBQBVekDvU_uuU-KwJu9MVFBN3dLVlOZU9YwNPgW30ifDEgiuU6z5_-eKZgKeJjYNzwsNkZX6366LqpA"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"prompt\": {{ JSON.stringify('Generate an image for ' + $node[\"Supabase2\"].json.platform + ', with tone (' + $node[\"Supabase2\"].json.tone + ') and goal (' + $node[\"Supabase2\"].json.goal + ') for the topic, (' + $node[\"Supabase5\"].json.topic + ')' + ($node[\"Supabase2\"].json.useRAG ? (' \\n\\nUse this context' + $node[\"Code\"].json[\"rag_context\"]) : '')) }},\n  \"height\": 1024,\n  \"width\": 1024,\n  \"count\": 1\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        8180,
+        -680
+      ],
+      "id": "4715bded-5115-42db-9f9a-d84c16c39468",
+      "name": "HTTP Request10"
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        8400,
+        -680
+      ],
+      "id": "98c5e610-069a-4f85-9ee3-9020c1b040ab",
+      "name": "Wait2",
+      "webhookId": "f0dd6717-d726-49c1-8e8a-33cf3a07d1ae"
+    },
+    {
+      "parameters": {
+        "url": "=https://genai-api.picsart.io/v1/text2image/inferences/{{ $json.inference_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-picsart-api-key",
+              "value": "eyJraWQiOiI5NzIxYmUzNi1iMjcwLTQ5ZDUtOTc1Ni05ZDU5N2M4NmIwNTEiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhdXRoLXNlcnZpY2UtMjUxYmVlNTUtMzQ5MC00ZDAwLThmYWUtMmM2MjgyZmNkM2M4IiwiYXVkIjoiNDg5OTQyNjI3MDE3MTAxIiwibmJmIjoxNzUyMjQ2NjQ1LCJzY29wZSI6WyJiMmItYXBpLmdlbl9haSIsImIyYi1hcGkuaW1hZ2VfYXBpIl0sImlzcyI6Imh0dHBzOi8vYXBpLnBpY3NhcnQuY29tL3Rva2VuLXNlcnZpY2UiLCJvd25lcklkIjoiNDg5OTQyNjI3MDE3MTAxIiwiaWF0IjoxNzUyMjQ2NjQ1LCJqdGkiOiJkZjYwNzI4Mi0yNDYxLTQzMzUtYmUxYi04MWRmMWEzMDlmNmIifQ.fpkBEbbW6PfT1T_xkVIIfiOy0ODZMnJOziVV6kNyyHY_jTTFA30bRFGMkNmxs47Zxzjfr46jnchqIteU2NefOq1nuDcyvwg07fA8ROYNI_DwagstjoTHrajewJponEABT7FOthfAbfD_KLmKsed-jHWIKEVC94shXdAWSWgqvh-CjLzKsjl3sTxaIV2ITBs-5QITLyhchTL0TsKEHlRrn8tVwnQAu-fPVLxLjDvvKlfV1vHAKhL3BQevqT6qN0OMBopvB2xBQBVekDvU_uuU-KwJu9MVFBN3dLVlOZU9YwNPgW30ifDEgiuU6z5_-eKZgKeJjYNzwsNkZX6366LqpA"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        8620,
+        -680
+      ],
+      "id": "89d07b6c-5b66-4a46-a104-207a83d17e02",
+      "name": "HTTP Request11"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0ea5e063-3fd2-4dab-82de-4948c35356d1",
+              "leftValue": "={{ $json.image_url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1180,
+        1400
+      ],
+      "id": "429e42f4-ef6a-4df4-851d-fdcbc4d1b172",
+      "name": "If14"
+    },
+    {
+      "parameters": {
+        "person": "0TL-s-xlav",
+        "text": "={{ $json.content }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        1560,
+        1240
+      ],
+      "id": "c3998d12-e5d8-432a-98e4-16c32efced65",
+      "name": "LinkedIn1",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "vQgHpSKygd7uOyKD",
+          "name": "LinkedIn account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "scheduled_posts",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $node[\"Supabase6\"].json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "uploaded"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1860,
+        1240
+      ],
+      "id": "a7f777cf-a369-4f4b-a37c-486d34a789b0",
+      "name": "Supabase17",
+      "credentials": {
+        "supabaseApi": {
+          "id": "3Rqwx5Z9APJ6JOvy",
+          "name": "Supabase account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Supabase1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Supabase5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase": {
+      "main": [
+        [
+          {
+            "node": "Supabase1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "If10",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Supabase2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase2": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase3": {
+      "main": [
+        [
+          {
+            "node": "Summarize1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Supabase3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI2": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase5": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Supabase4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI3": {
+      "main": [
+        [
+          {
+            "node": "OpenAI4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "OpenAI3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Supabase10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "OpenAI2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Supabase6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase6": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [],
+        [
+          {
+            "node": "If14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn": {
+      "main": [
+        [
+          {
+            "node": "Supabase8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If6": {
+      "main": [
+        [
+          {
+            "node": "Supabase9",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Supabase9": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "OpenAI5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "If7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If7": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI4": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI6": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "OpenAI6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase10": {
+      "main": [
+        [
+          {
+            "node": "If6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI5": {
+      "main": [
+        [
+          {
+            "node": "If8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If8": {
+      "main": [
+        [
+          {
+            "node": "OpenAI7",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Supabase7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI7": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "If9": {
+      "main": [
+        [
+          {
+            "node": "OpenAI8",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAI3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI8": {
+      "main": [
+        [
+          {
+            "node": "Supabase11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If10": {
+      "main": [
+        [
+          {
+            "node": "OpenAI13",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Supabase13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If11": {
+      "main": [
+        [
+          {
+            "node": "Supabase12",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Supabase12": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase13": {
+      "main": [
+        [
+          {
+            "node": "If11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "OpenAI9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI9": {
+      "main": [
+        [
+          {
+            "node": "If12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If12": {
+      "main": [
+        [
+          {
+            "node": "Supabase14",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If13": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request10",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAI13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI11": {
+      "main": [
+        [
+          {
+            "node": "Supabase15",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request5": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI12": {
+      "main": [
+        [
+          {
+            "node": "Code4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code4": {
+      "main": [
+        [
+          {
+            "node": "Supabase16",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge3": {
+      "main": [
+        [
+          {
+            "node": "OpenAI12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI10": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "OpenAI13": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request6": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request8": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request7": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request9": {
+      "main": [
+        [
+          {
+            "node": "OpenAI10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request10": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request11": {
+      "main": [
+        [
+          {
+            "node": "OpenAI11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If14": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn1": {
+      "main": [
+        [
+          {
+            "node": "Supabase17",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "44435de7-5e0d-4f50-b132-8ca1fc7008d7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "97481c59524931a4b36e078fa033572789a88c5b892af867e49f24d9006c15e7"
+  },
+  "id": "t1xdwgMhy9Dec8sR",
+  "tags": []
+}
